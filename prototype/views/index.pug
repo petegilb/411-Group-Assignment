@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  h1 Movie API Call prototype
+  p Prototype using the omdbapi located here: http://www.omdbapi.com/
+  p Please type a movie title below to retrieve information
+  form(name="MovieFinder", method="post")
+    div.input
+      input(type="text",  name="movieTitle")
+    div.actions
+      input(type="submit", value="search")
+  p result: #{results}
+  p year: #{year}
+  p Rating: #{rating}
+  p Runtime: #{movieRuntime}
+  p Genre: #{genre}
+  p plot: #{plot}
+  p Metascore: #{metascore}
+  p imdbRating: #{imdbRating}
+  p imdbVotes: #{imdbVotes}
+
+  p Movie Poster
+  img.className#IdName(src=posterURL alt="Image Title")
