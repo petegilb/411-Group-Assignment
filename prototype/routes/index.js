@@ -7,10 +7,12 @@ const fetchConfig = require('../config/fetchConfig');
 
 router.route('/')
     .get((req, res, next) => {
-        res.render('index', {title: 'Express'});
+        res.render('index', {title: 'Movie Recommendations'});
     })
     .post(async (req, res, next) => {
-        let input;
+        let genre = (req.body.MovieGenre ? req.body.MovieGenre: 'Action');
+        res.render('index', {results: "you chose " + genre});
+        /*let input;
         if (req.body.movieTitle) {
             input = req.body.movieTitle;
         } else
@@ -33,7 +35,7 @@ router.route('/')
             });
         } catch (error) {
             res.render('index', {results: "unable to find movie"});
-        }
+        }*/
     })
 
 

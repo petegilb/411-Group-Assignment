@@ -1,10 +1,19 @@
 extends layout
 
 block content
-  h1 Movie API Call prototype
+  title #{title}
+  h1 Movie Recommendations
   p Prototype using the omdbapi located here: http://www.omdbapi.com/
-  p Please type a movie title below to retrieve information
+  p Please select a genre below to receive a movie recommendation
+  - const genres = ["Comedy", "Fantasy", "Crime","Drama","Music","Adventure","History","Thriller","Animation","Family","Mystery","Biography","Action","Film-Noir","Romance","Sci-Fi","War","Western","Horror","Musical","Sport"];
   form(name="MovieFinder", method="post")
+    div.input
+      select(name = 'MovieGenre', id='')
+        each genre in genres
+          option(value=genre.id) #{genre}
+        input(type="submit", value="get a recommendation")
+
+  //form(name="MovieFinder", method="post")
     div.input
       input(type="text",  name="movieTitle")
     div.actions
