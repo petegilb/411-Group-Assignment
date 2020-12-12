@@ -3,9 +3,8 @@ extends layout
 block content
   title #{title}
   h1 Movie Recommendations
-  p Prototype using the omdbapi located here: http://www.omdbapi.com/
+  p Recommendations are found from tmdb sorted by popularity and with more than 250 votes, then information is taken from imdb using the omdb api
   p Please select a genre below to receive a movie recommendation
-  p Recommendations are found from tmdb sorted by popularity and with more than 250 votes
   - const genres= [{ id: 28, name: 'Action' }, { id: 12, name: 'Adventure' }, { id: 16, name: 'Animation' }, { id: 35, name: 'Comedy' }, { id: 80, name: 'Crime' }, { id: 99, name: 'Documentary' }, { id: 18, name: 'Drama' }, { id: 10751, name: 'Family' }, { id: 14, name: 'Fantasy' }, { id: 36, name: 'History' }, { id: 27, name: 'Horror' }, { id: 10402, name: 'Music' }, { id: 9648, name: 'Mystery' }, { id: 10749, name: 'Romance' }, { id: 878, name: 'Science Fiction' }, { id: 10770, name: 'TV Movie' }, { id: 53, name: 'Thriller' }, { id: 10752, name: 'War' }, { id: 37, name: 'Western' }];
   form(name="MovieFinder", method="post")
     div.input
@@ -25,7 +24,7 @@ block content
   p Runtime: #{movieRuntime}
   p Genre: #{genre}
   p plot: #{plot}
-  p Scores/Ratings: imdbRating -> #{imdbRating}
+  p imdbRating -> #{imdbRating}
   p Metascore -> #{metascore}
   p tmdbVotes -> #{tmdbRating}
   p numVotes: imdbVotes: #{imdbVotes} tmdbVotes #{tmdbNumVotes}

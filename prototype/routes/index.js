@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-
 const fetch = require('node-fetch');
 const fetchConfig = require('../config/fetchConfig');
 const tmdbConfig = require('../config/tmdbConfig');
