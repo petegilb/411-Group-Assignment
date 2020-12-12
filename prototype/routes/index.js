@@ -40,16 +40,12 @@ router.route('/')
         //tmdb api usage
         //let rawReturnValue = await fetch(tmdbConfig.tmdbOptions.url + "genre/movie/list" + "?api_key=" + tmdbConfig.tmdbOptions.key, {method: fetchConfig.fetchOptions.method});
         //let rawReturnValue = await fetch(tmdbConfig.tmdbOptions.url + "3/movie/550" + "?api_key=" + tmdbConfig.tmdbOptions.key, {method: fetchConfig.fetchOptions.method});
-        let rawMovies = await fetch(tmdbConfig.tmdbOptions.url + "discover/movie" + "?api_key=" + tmdbConfig.tmdbOptions.key + "&with_genres=" + genre + "&sort_by=vote_average.desc&vote_count.gte=1000", {method: fetchConfig.fetchOptions.method});
-        const cleanMovies = await rawMovies.json();
+        let rawMovies = await fetch(tmdbConfig.tmdbOptions.url + "discover/movie" + "?api_key=" + tmdbConfig.tmdbOptions.key + "&with_genres=" + genre + "&sort_by=vote_average.desc&vote_count.gte=250", {method: fetchConfig.fetchOptions.method});
+        let cleanMovies = await rawMovies.json();
+        cleanMovies = await findMovie(cleanMovies, genre);
+        //console.log(cleanMovies);
         const movieChoice = cleanMovies["results"][Math.floor(Math.random() * cleanMovies["results"].length)];
-        //console.log(movieChoice);
-
-        //res.render('index', {results: "you chose " + genre});
-        //console.log(movieJson["movies"][0]["title"]);
-
-        //find random movie matching the genre
-        //let movieTitle = await findMovie(genre, movies);
+        console.log(movieChoice);
         let movieTitle = movieChoice["title"];
         //now find the information off of the movie title -> eventually we will want to store this in a database
         let rawReturnValue = await fetch(fetchConfig.fetchOptions.url + "?apikey=" + fetchConfig.fetchOptions.key + "&t=" + movieTitle, {method: fetchConfig.fetchOptions.method});
@@ -66,7 +62,9 @@ router.route('/')
                 metascore: cleanReturnValue["Metascore"],
                 imdbRating: cleanReturnValue["imdbRating"],
                 imdbVotes: cleanReturnValue["imdbVotes"],
-                posterURL: cleanReturnValue["Poster"]
+                posterURL: cleanReturnValue["Poster"],
+                tmdbRating: movieChoice["vote_average"],
+                tmdbNumVotes: movieChoice["vote_count"],
             });
         } catch (error) {
             res.render('index', {results: "unable to find movie"});
@@ -74,9 +72,13 @@ router.route('/')
     })
 
 //function to find a random movie from the list
-const findMovie = async (genre, movies) => {
-    let filteredMov = movies.filter(movie => movie["genres"].includes(genre));
-    return(filteredMov[Math.floor(Math.random() * filteredMov.length)]["title"]);
+const findMovie = async (movies, genre) => {
+    const numPages = parseInt(movies["total_pages"]);
+    let page = 1 + Math.floor(Math.random() * numPages);
+    //call it again but with a random page
+    let rawMovies = await fetch(tmdbConfig.tmdbOptions.url + "discover/movie" + "?api_key=" + tmdbConfig.tmdbOptions.key + "&with_genres=" + genre + "&sort_by=vote_average.desc&vote_count.gte=1000" + "&page=" + page, {method: fetchConfig.fetchOptions.method});
+    const cleanMovies = await rawMovies.json();
+    return cleanMovies;
 }
 
 module.exports = router;
