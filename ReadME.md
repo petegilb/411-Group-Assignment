@@ -20,3 +20,6 @@ Login: allows the user to login using Google OAuth
 Logout: Logs out the user
 
 Users cookies last for 1 day before deletion.
+
+### Planned Features
+Caching Movie information and data so that when we look at myList it shows the information that corresponds to the movie and the poster and the rating information
