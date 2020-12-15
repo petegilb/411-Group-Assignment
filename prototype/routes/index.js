@@ -1,6 +1,30 @@
 const express = require('express');
 const router = express.Router();
 
+//for OAuth
+const passport = require("passport");
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const dboauthKeys = require("../config/dboauthConfig");
+
+//for MongoDB/Mongoose
+const mongoose = require('mongoose');
+const mongoURL = dboauthKeys.mongodb.dbURL;
+const Schema = mongoose.Schema;
+
+//for cookies
+const cookieSession = require("cookie-session");
+
+mongoose.connect(mongoURL, { useNewUrlParser: true});
+const db = mongoose.connection;
+db.once('open', _ => {
+    console.log('Database connected:', mongoURL)
+})
+db.on('error', err => {
+    console.error('connection error:', err)
+})
+const User = require('../models/User');
+const Movies = require('../models/Movies');
+
 const fetch = require('node-fetch');
 const fetchConfig = require('../config/fetchConfig');
 const tmdbConfig = require('../config/tmdbConfig');
@@ -26,6 +50,49 @@ const genres= [
     { id: 10752, name: 'War' },
     { id: 37, name: 'Western' }
 ]
+
+passport.use(
+    new GoogleStrategy({
+        clientID: dboauthKeys.google.clientID,
+        clientSecret: dboauthKeys.google.clientSecret,
+        callbackURL: "/"
+    }, (accessToken, refreshToken, profile, done) => {
+        // passport callback function
+        //check if user already exists in our db with the given profile ID
+        User.findOne({id: profile.id}).then((currentUser)=>{
+            if(currentUser){
+                //if we already have a record with the given profile ID
+                done(null, currentUser);
+            } else{
+                //if not, create a new user
+                new User({
+                    id: profile.id,
+                }).save().then((newUser) =>{
+                    done(null, newUser);
+                });
+            }
+        })
+    })
+);
+
+passport.serializeUser(function(user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser((id, done) => {
+    User.findById(id).then(user => {
+        done(null, user);
+    });
+});
+
+router.use(cookieSession({
+    // milliseconds of a day
+    maxAge: 24*60*60*1000,
+    keys:[dboauthKeys.session.cookieKey]
+}));
+
+router.use(passport.initialize());
+router.use(passport.session());
 
 router.route('/')
     .get((req, res, next) => {
@@ -83,5 +150,23 @@ let findMovie = async (movies, genre) => {
 const getTitle = async (movie) => {
     return movie["title"];
 }
+
+//for OAuth
+
+router.get("/auth/google", passport.authenticate("google", {
+    scope: ["profile", "email"]
+}));
+
+//router.get("/auth/google/redirect",passport.authenticate('google'));
+
+router.get("auth/google/redirect",passport.authenticate("google"),(req,res)=>{
+    res.send(req.user);
+    res.send("you reached the redirect URI");
+});
+
+router.get("/auth/logout", (req, res) => {
+    req.logout();
+    res.send(req.user);
+});
 
 module.exports = router;
