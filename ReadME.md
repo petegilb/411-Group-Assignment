@@ -1,7 +1,7 @@
 ### About this Project
 Our Group Assignment is a web app built with Express, Node, MongoDB, and Passport for the OAuth. The project's goal is to serve movie recommendations and does so by calling two api's to retrieve movies and then retrieve information about those movies. Currently it supports saving movies and storing those movies in mongoDB to the corresponding user. Login currently only supports google logins that are part of the .bu organization. 
 
-### Group Members
+### Group Members for Team 11
 Peter Gilbert, Isk Daud Mah, Amy Huang, Andrew Coughlan, Ji Weiqi, Helen Feng
 
 ### API's Used
