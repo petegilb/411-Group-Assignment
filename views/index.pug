@@ -27,7 +27,7 @@ block content
         each genre in genres
           option(value=genre.id) #{genre.name}
         input(type="submit", value="get a recommendation")
-  p result: #{results}
+  p#movTitle result: #{results}
   p year: #{year}
   p Rating: #{rating}
   p Runtime: #{movieRuntime}
@@ -39,7 +39,14 @@ block content
   p numVotes: imdbVotes: #{imdbVotes} tmdbVotes #{tmdbNumVotes}
   //form(name="SaveMovie", method="post")
     input(type="submit", value="Save this Movie to my List")
-  button Save this Movie to my List
+  script.
+    const saveMovie = () => {
+      let movTitle = document.getElementById("movTitle").innerText;
+      let data = {element: "barium"};
+      fetch('/saveMovie', {method: "POST", body: "apple"});
+    }
+
+  button(type='button' onclick='saveMovie()') Save this Movie to my List
 
   p Movie Poster
   img.className#IdName(src=posterURL alt="Image Title")

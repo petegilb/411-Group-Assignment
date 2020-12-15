@@ -1,5 +1,7 @@
 const createError = require('http-errors');
 const express = require('express');
+const bodyParser = require('body-parser');
+
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
@@ -12,6 +14,11 @@ const usersRouter = require('./routes/users');
 const passport = require("passport");
 
 const app = express();
+
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+app.use(bodyParser.raw());
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

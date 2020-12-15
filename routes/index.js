@@ -1,4 +1,5 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const router = express.Router();
 
 //for OAuth
@@ -114,6 +115,7 @@ router.route('/')
         //console.log(movieChoice);
 
         let movieTitle = await movieChoice["title"];
+        lastMovie = movieTitle;
         //now find the information off of the movie title -> eventually we will want to store this in a database
         let rawReturnValue = await fetch(fetchConfig.fetchOptions.url + "?apikey=" + fetchConfig.fetchOptions.key + "&t=" + movieTitle, {method: fetchConfig.fetchOptions.method});
         const cleanReturnValue = await rawReturnValue.json();
@@ -176,5 +178,25 @@ router.get("/logout", (req, res) => {
 router.get("/concept", (req, res) => {
     res.render("concept");
 });
+
+router.route('/saveMovie')
+    .get((req, res, next) => {
+        console.log("get request");
+    })
+    .post(async (req, res, next) => {
+        //console.log(req.body);
+        //console.log("made it here");
+        console.log(lastMovie);
+        const currentUserInfo = await User.findOne({googleId: req.user.googleId});
+        currentUserInfo.likedMovies.push(lastMovie);
+        const doc = await currentUserInfo.save();
+        console.log(doc);
+    })
+
+router.get('/myList', (async (req, res, next) => {
+    const currentUserInfo = await User.findOne({googleId: req.user.googleId});
+    res.json(currentUserInfo.likedMovies);
+
+}))
 
 module.exports = router;
