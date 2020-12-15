@@ -55,18 +55,18 @@ passport.use(
     new GoogleStrategy({
         clientID: dboauthKeys.google.clientID,
         clientSecret: dboauthKeys.google.clientSecret,
-        callbackURL: "/"
+        callbackURL: "/auth/google/redirect"
     }, (accessToken, refreshToken, profile, done) => {
         // passport callback function
         //check if user already exists in our db with the given profile ID
-        User.findOne({id: profile.id}).then((currentUser)=>{
+        User.findOne({googleId: profile.id}).then((currentUser)=>{
             if(currentUser){
                 //if we already have a record with the given profile ID
                 done(null, currentUser);
             } else{
                 //if not, create a new user
                 new User({
-                    id: profile.id,
+                    googleId: profile.id,
                 }).save().then((newUser) =>{
                     done(null, newUser);
                 });
@@ -75,7 +75,7 @@ passport.use(
     })
 );
 
-passport.serializeUser(function(user, done) {
+passport.serializeUser((user, done) => {
     done(null, user);
 });
 
@@ -94,9 +94,12 @@ router.use(cookieSession({
 router.use(passport.initialize());
 router.use(passport.session());
 
+//variable to store the last movie information
+let lastMovie;
+
 router.route('/')
     .get((req, res, next) => {
-        res.render('index', {title: 'Movie Recommendations'});
+        res.render('index', {title: 'Movie Recommendations', currentUser: req.user});
     })
     .post(async (req, res, next) => {
         //const movieJson = require('../movies.json');
@@ -104,8 +107,6 @@ router.route('/')
         //let movies = movieJson["movies"];
 
         //tmdb api usage
-        //let rawReturnValue = await fetch(tmdbConfig.tmdbOptions.url + "genre/movie/list" + "?api_key=" + tmdbConfig.tmdbOptions.key, {method: fetchConfig.fetchOptions.method});
-        //let rawReturnValue = await fetch(tmdbConfig.tmdbOptions.url + "3/movie/550" + "?api_key=" + tmdbConfig.tmdbOptions.key, {method: fetchConfig.fetchOptions.method});
         let rawMovies = await fetch(tmdbConfig.tmdbOptions.url + "discover/movie" + "?api_key=" + tmdbConfig.tmdbOptions.key + "&with_genres=" + genre + "&sort_by=vote_average.desc&vote_count.gte=250", {method: fetchConfig.fetchOptions.method});
         let cleanMovies = await rawMovies.json();
 
@@ -116,9 +117,10 @@ router.route('/')
         //now find the information off of the movie title -> eventually we will want to store this in a database
         let rawReturnValue = await fetch(fetchConfig.fetchOptions.url + "?apikey=" + fetchConfig.fetchOptions.key + "&t=" + movieTitle, {method: fetchConfig.fetchOptions.method});
         const cleanReturnValue = await rawReturnValue.json();
-        //res.render('index', {results: fetchConfig.fetchOptions.url + "?apikey=" + fetchConfig.fetchOptions.key + "&t=" + input});
+        //try to render the results
         try {
             res.render('index', {
+                currentUser: req.user,
                 results: cleanReturnValue["Title"],
                 year: cleanReturnValue["Year"],
                 rating: cleanReturnValue["Rated"],
@@ -147,9 +149,6 @@ let findMovie = async (movies, genre) => {
     return cleanMovies["results"][Math.floor(Math.random() * cleanMovies["results"].length)];
 }
 
-const getTitle = async (movie) => {
-    return movie["title"];
-}
 
 //for OAuth
 
@@ -157,16 +156,25 @@ router.get("/auth/google", passport.authenticate("google", {
     scope: ["profile", "email"]
 }));
 
-//router.get("/auth/google/redirect",passport.authenticate('google'));
-
-router.get("auth/google/redirect",passport.authenticate("google"),(req,res)=>{
-    res.send(req.user);
-    res.send("you reached the redirect URI");
+router.get("/auth/google/redirect",passport.authenticate("google"),(req,res)=>{
+    res.redirect("/");
 });
 
 router.get("/auth/logout", (req, res) => {
     req.logout();
-    res.send(req.user);
+    res.redirect("/");
+});
+
+router.get("/login", (req, res) => {
+    res.redirect("/auth/google");
+});
+
+router.get("/logout", (req, res) => {
+    res.redirect("/auth/logout");
+});
+
+router.get("/concept", (req, res) => {
+    res.render("concept");
 });
 
 module.exports = router;
