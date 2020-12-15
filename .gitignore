@@ -1,6 +1,5 @@
-/prototype/node_modules
+/node_modules
 /.idea
-/prototype/.idea
 /oauthtesting/.idea
 /oauthtesting/node_modules
-/prototype/config
+/config
